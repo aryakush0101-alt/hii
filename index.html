@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message...</title>
+<style>
+    body, html {
+        height: 100%;
+        margin: 0;
+        /* UPDATED: Removed 'Roboto+Mono' to prevent internet dependency */
+        font-family: 'Courier New', monospace;
+        background: #0a0a0a;
+        color: #eee;
+        overflow: hidden; 
+    }
+    
+    #prompt-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-align: center;
+        flex-direction: column;
+        cursor: pointer;
+    }
+    
+    #key-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 1.2em;
+        color: #888;
+    }
+    
+    .key-label {
+        margin-bottom: 20px;
+        animation: soft-blink 2s infinite;
+    }
+    
+    @keyframes soft-blink {
+        0%, 100% { opacity: 0.7; }
+        50% { opacity: 1; }
+    }
+    
+    #mech-key {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end; 
+        cursor: pointer;
+        user-select: none;
+        perspective: 500px;
+    }
+    
+    .key-base {
+        width: 90px;
+        height: 60px;
+        background: linear-gradient(to bottom, #d0d0d0, #9a9a9a);
+        border: 2px solid #777;
+        border-radius: 10px;
+        box-shadow: 0 8px 0 #444, inset 0 2px 2px rgba(255, 255, 255, 0.5);
+        transform: rotateX(20deg); 
+        z-index: 5; 
+    } 
+    
+    .keycap {
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(to bottom, #f9f9f9, #e0e0e0);
+        color: #333; 
+        font-weight: bold;
+        font-size: 1.1em;
+        text-shadow: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #ccc;
+        border-bottom-width: 4px;
+        border-top-width: 1px;
+        border-radius: 10px;
+        top: 0;
+        box-shadow: 0 10px 0 #aaa, inset 0 2px 5px rgba(255, 255, 255, 0.8);
+        transition: transform 0.05s ease-out, box-shadow 0.05s ease-out, top 0.05s ease-out;
+        transform: rotateX(20deg) translateY(0px);
+        z-index: 10;
+    }
+    
+    .keycap.pressed {
+        top: 8px;
+        transform: rotateX(15deg) translateY(2px); 
+        box-shadow: 0 2px 0 #aaa, inset 0 1px 2px #fff; 
+    }
+    
+    #terminal {
+        width: 100%;
+        max-width: 900px;
+        height: 90vh;
+        max-height: 800px;
+        background: #000;
+        border: 1px solid #333;
+        border-radius: 8px;
+        box-shadow: 0 0 25px rgba(0, 255, 0, 0.15);
+        margin: 5vh auto;
+        position: relative; 
+        z-index: 10; 
+        display: flex;
+        flex-direction: column;
+    }
+    
+    #terminal-header {
+        width: 100%;
+        background: #333;
+        padding: 8px 12px;
+        box-sizing: border-box;
+        border-top-left-radius: 7px;
+        border-top-right-radius: 7px;
+        display: flex;
+        align-items: center;
+        user-select: none;
+    }
+    
+    .window-controls {
+        display: flex;
+    }
+    
+    .window-control {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+        opacity: 0.7;
+    }
+    
+    .window-control.close { background-color: #ff5f56; }
+    
+    .window-control.minimize { background-color: #ffbd2e; }
+    
+    .window-control.maximize { background-color: #27c93f; }
+    
+    #terminal-title {
+        color: #ccc;
+        font-size: 0.9em;
+        margin: 0 auto;
+        padding-right: 60px; 
+    }
+    
+    #terminal-content {
+        padding: 20px;
+        box-sizing: border-box;
+        overflow-y: auto;
+        flex-grow: 1; 
+    }
+    
+    .line {
+        color: #0f0; 
+        white-space: pre-wrap; 
+        word-break: break-all;
+        margin-bottom: 5px;
+        font-size: 0.9em;
+    }
+    
+    .line .prefix {
+        color: #0ff; 
+    }
+    
+    .line .command {
+        color: #fff; 
+    }
+    
+    #message {
+        color: #ff1d8e; 
+        font-size: 1.1em; 
+        text-align: center;
+        white-space: pre;
+        padding: 20px 0;
+        line-height: 1.6;
+        text-shadow: 0 0 10px rgba(255, 29, 142, 0.5); 
+        animation: message-fade-in 2s forwards;
+        opacity: 0; 
+        overflow-x: auto; 
+    }
+    
+    @keyframes message-fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @media (max-width: 600px) {
+        #terminal {
+            width: 98%;
+            height: 95vh;
+            margin: 2.5vh auto;
+        }
+        
+        #terminal-content {
+            padding: 10px;
+        }
+        
+        #message {
+            font-size: 0.6em; 
+            line-height: 1.5;
+        }
+        
+        .line {
+            font-size: 0.8em;
+        }
+    }
+</style>
+</head>
+<body>
+    <div id="prompt-container">
+        <div id="key-container">
+            <div class="key-label">Initialize Protocol</div>
+            <div id="mech-key">
+                <div class="keycap">ENTER</div>
+                <div class="key-base"></div>
+            </div>
+        </div>
+    </div>
+    <div id="terminal" style="display: none;">
+        <div id="terminal-header">
+            <div class="window-controls">
+                <div class="window-control close"></div>
+                <div class="window-control minimize"></div>
+                <div class="window-control maximize"></div>
+            </div>
+            <div id="terminal-title">/bin/bash - birthday_protocol.sh</div>
+        </div>
+        <div id="terminal-content">
+        </div>
+    </div>
+    <audio id="key-sound" preload="auto">
+        <source src="spacebar-click-keyboard-199448.mp3" type="audio/mpeg">
+    </audio>
+    <script>
+        const codeLines = [
+            { prefix: "$", command: "run birthday_protocol.sh --verbose" },
+            { text: "Initializing sequence... [ETA: 5s]" },
+            { text: "Establishing secure connection to joy-server... [STATUS: SECURE]" },
+            { text: "Loading core modules: [memories.dat] [good_times.pkg] [wishes.dll]" },
+            { text: "Module verification complete. All systems nominal." },
+            { text: "Authenticating recipient: 'blindingblinks'" },
+            { prefix: "$", command: "check-blessing-status --user blindingblinks" },
+            { text: "Blessing status: MAXIMUM (User is awesome!)" },
+            { text: "Generating personalized birthday message... " },
+            { text: "Analyzing happiness metrics... [POSITIVE_OVERLOAD]" },
+            { text: "Finalizing display output... Executing display_message.exe" },
+        ];
+        const finalMessage = `
+ |   |   |
+              |V| |V| |V|                
+               | | | | | |                 
+              (*******************)                
+             ( \\|/     \\|/ )                
+             (<<<<<<<<<*>>>>>>>>>)                
+            ((*****************************))             
+           ((   HAPPY BIRTHDAY!!!   ))           
+            ((   \\|/   \\|/   \\|/   ))           
+             ((     @BLINDINGBLINKS     ))           
+             ((^^^^^^^^^^^^^^^^^^^^^^^^^^^^^))           
+               (***************************************)             
+
+     Wishing you a day filled with joy, laughter,
+     and all most imprtantly mental peace you deserve!    
+`;
+        document.addEventListener('DOMContentLoaded', () => {
+            const promptContainer = document.getElementById('prompt-container');
+            const terminal = document.getElementById('terminal');
+            const terminalContent = document.getElementById('terminal-content');
+            let lineIndex = 0;
+            function startTerminal() {
+                promptContainer.style.display = 'none';
+                document.body.style.overflow = 'hidden'; 
+                terminal.style.display = 'flex'; 
+                typeLine(); 
+            }
+            function typeLine() {
+                if (lineIndex < codeLines.length) {
+                    const lineData = codeLines[lineIndex];
+                    const lineEl = document.createElement('div');
+                    lineEl.className = 'line';
+                    if (lineData.prefix) {
+                        lineEl.innerHTML = `<span class="prefix">${lineData.prefix} </span><span class="command">${lineData.command}</span>`;
+                    } else {
+                        lineEl.textContent = lineData.text;
+                    }
+                    terminalContent.appendChild(lineEl);
+
+                    terminalContent.scrollTop = terminalContent.scrollHeight;
+                    lineIndex++;
+                    const dramaticDelay = Math.floor(Math.random() * 400) + 200; // 200ms to 600ms
+                    setTimeout(typeLine, dramaticDelay);
+                } else {
+                    showMessage();
+                }
+            }
+            function showMessage() {
+                const messageEl = document.createElement('pre');
+                messageEl.id = 'message';
+                messageEl.textContent = finalMessage;
+                terminalContent.appendChild(messageEl);
+                terminalContent.scrollTop = terminalContent.scrollHeight;
+            }
+            let audioCtx;
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.warn("Web Audio API is not supported in this browser.");
+            }
+            const keySound = document.getElementById('key-sound');
+            function playClickSound() {
+                if (!keySound) {
+                    console.warn("Audio element not found!");
+                    return;
+                }
+                keySound.currentTime = 0;
+                keySound.play().catch(e => {
+                    console.warn("Audio play failed. User might need to interact more.", e);
+                });
+            }
+            const mechKey = document.getElementById('mech-key');
+            const keyCap = document.querySelector('.keycap');
+            mechKey.addEventListener('click', () => {
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                playClickSound();
+                keyCap.classList.add('pressed');
+                setTimeout(() => {
+                    keyCap.classList.remove('pressed');
+                }, 100);
+                setTimeout(() => {
+                    startTerminal();
+                }, 300);
+            });
+        });
+    </script>
+</body>
+</html>
