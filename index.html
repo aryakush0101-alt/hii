@@ -8,7 +8,6 @@
     body, html {
         height: 100%;
         margin: 0;
-        /* UPDATED: Removed 'Roboto+Mono' to prevent internet dependency */
         font-family: 'Courier New', monospace;
         background: #0a0a0a;
         color: #eee;
@@ -251,21 +250,21 @@
             { text: "Finalizing display output... Executing display_message.exe" },
         ];
         const finalMessage = `
- |   |   |
-              |V| |V| |V|                
-               | | | | | |                 
-              (*******************)                
-             ( \\|/     \\|/ )                
-             (<<<<<<<<<*>>>>>>>>>)                
-            ((*****************************))             
-           ((   HAPPY BIRTHDAY!!!   ))           
-            ((   \\|/   \\|/   \\|/   ))           
-             ((     @BLINDINGBLINKS     ))           
-             ((^^^^^^^^^^^^^^^^^^^^^^^^^^^^^))           
-               (***************************************)             
+|   |   |
+         |V| |V| |V|         
+           | | | | | |           
+         (*******************)         
+         (   \\|/       \\|/   )         
+         (<<<<<<<<<*>>>>>>>>>)         
+       ((*****************************))       
+       ((      HAPPY BIRTHDAY!!!      ))       
+       ((       \\|/   \\|/   \\|/       ))       
+       ((       @BLINDINGBLINKS       ))       
+       ((^^^^^^^^^^^^^^^^^^^^^^^^^^^^^))       
+       (***************************************)       
 
-     Wishing you a day filled with joy, laughter,
-     and all most imprtantly mental peace you deserve!    
+    Wishing you a day filled with joy, laughter,
+    and all most imprtantly mental peace you deserve!   
 `;
         document.addEventListener('DOMContentLoaded', () => {
             const promptContainer = document.getElementById('prompt-container');
@@ -317,9 +316,21 @@
                     console.warn("Audio element not found!");
                     return;
                 }
+                
+                // Check if audio file source is valid or available
+                if (!keySound.currentSrc) {
+                     console.warn("Audio source not found or loaded. Skipping sound.");
+                     return;
+                }
+
                 keySound.currentTime = 0;
                 keySound.play().catch(e => {
-                    console.warn("Audio play failed. User might need to interact more.", e);
+                    // This warning is expected if the audio file is missing
+                    if (e.name === 'NotSupportedError' || !keySound.currentSrc) {
+                         console.warn("Audio file not found. Sound will not play.");
+                    } else {
+                         console.warn("Audio play failed. User might need to interact more.", e);
+                    }
                 });
             }
             const mechKey = document.getElementById('mech-key');
