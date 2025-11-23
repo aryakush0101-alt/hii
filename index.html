@@ -12,8 +12,7 @@
     body, html {
         height: 100%;
         margin: 0;
-        /* Updated font stack to prioritize Roboto Mono */
-        font-family: 'Roboto Mono', 'Courier New', monospace;
+        font-family: 'Roboto Mono', monospace; /* Strict monospace */
         background: #0a0a0a;
         color: #eee;
         overflow: hidden; 
@@ -140,9 +139,7 @@
     }
     
     .window-control.close { background-color: #ff5f56; }
-    
     .window-control.minimize { background-color: #ffbd2e; }
-    
     .window-control.maximize { background-color: #27c93f; }
     
     #terminal-title {
@@ -157,6 +154,8 @@
         box-sizing: border-box;
         overflow-y: auto;
         flex-grow: 1; 
+        /* Important for mobile scrolling */
+        -webkit-overflow-scrolling: touch;
     }
     
     .line {
@@ -167,29 +166,24 @@
         font-size: 0.9em;
     }
     
-    .line .prefix {
-        color: #0ff; 
-    }
-    
-    .line .command {
-        color: #fff; 
-    }
+    .line .prefix { color: #0ff; }
+    .line .command { color: #fff; }
     
     #message {
         color: #ff1d8e; 
         font-size: 1.1em; 
-        text-align: center; /* Centers the block */
-        white-space: pre;   /* KEEPS ASCII ALIGNED */
-        padding: 20px 0;
-        line-height: 1.15;  /* Slight adjustment for block chars */
         text-shadow: 0 0 10px rgba(255, 29, 142, 0.5); 
         animation: message-fade-in 2s forwards;
         opacity: 0; 
-        overflow-x: auto; 
-        display: inline-block; 
-        width: 100%;
-        /* Force Roboto Mono again just for safety */
+        
+        /* CRITICAL FIXES FOR ALIGNMENT */
         font-family: 'Roboto Mono', monospace;
+        white-space: pre;      /* Forces text to NEVER wrap */
+        overflow-x: auto;      /* Adds scrollbar if too wide */
+        width: max-content;    /* Forces container to be as wide as the text */
+        display: block;
+        line-height: 1.0;      /* Tightens vertical blocks so they touch */
+        margin: 0 auto;
     }
     
     @keyframes message-fade-in {
@@ -199,29 +193,25 @@
     
     @media (max-width: 600px) {
         #terminal {
-            width: 98%;
+            width: 100%;
             height: 95vh;
             margin: 2.5vh auto;
         }
         
         #terminal-content {
             padding: 10px;
-            display: flex;
-            flex-direction: column;
+            overflow-x: scroll; /* Allow horizontal scroll on parent */
         }
         
         #message {
-            /* Adjusted size for safer mobile width */
-            font-size: 1.9vw; 
-            line-height: 1.1; 
-            padding: 10px 0;
-            margin: 0 auto; 
-            width: fit-content; 
-            align-self: center; 
+            /* Scale down on mobile to fit more in view */
+            font-size: 10px; 
+            line-height: 10px; 
         }
-        
+
         .line {
-            font-size: 0.8em;
+            /* Reduced font size for mobile log lines */
+            font-size: 0.4em; 
         }
     }
 </style>
@@ -266,6 +256,7 @@
             { text: "Finalizing display output... Executing display_message.exe" },
         ];
         
+        // Using the robust block-letter text that was prone to breaking
         const finalMessage = `
 ..........................|   |   |..........................
 .........................|V| |V| |V|.........................
