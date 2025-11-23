@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Message...</title>
+    <!-- Import Roboto Mono for perfect ASCII alignment -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
     body, html {
         height: 100%;
         margin: 0;
-        font-family: 'Courier New', monospace;
+        /* Updated font stack to prioritize Roboto Mono */
+        font-family: 'Roboto Mono', 'Courier New', monospace;
         background: #0a0a0a;
         color: #eee;
         overflow: hidden; 
@@ -176,13 +181,15 @@
         text-align: center; /* Centers the block */
         white-space: pre;   /* KEEPS ASCII ALIGNED */
         padding: 20px 0;
-        line-height: 1.1;   /* Tighter lines for better ASCII art */
+        line-height: 1.15;  /* Slight adjustment for block chars */
         text-shadow: 0 0 10px rgba(255, 29, 142, 0.5); 
         animation: message-fade-in 2s forwards;
         opacity: 0; 
-        overflow-x: auto; /* Allows scrolling if it still overflows */
-        display: inline-block; /* Helps with centering width */
-        width: 100%; /* Ensures it takes container width */
+        overflow-x: auto; 
+        display: inline-block; 
+        width: 100%;
+        /* Force Roboto Mono again just for safety */
+        font-family: 'Roboto Mono', monospace;
     }
     
     @keyframes message-fade-in {
@@ -199,19 +206,18 @@
         
         #terminal-content {
             padding: 10px;
-            /* Center content in mobile to keep art in middle */
             display: flex;
             flex-direction: column;
         }
         
         #message {
-            /* THIS IS THE FIX: */
-            font-size: 2.5vw; /* Scales font relative to viewport width */
-            line-height: 1.0; /* Very tight lines for mobile */
+            /* Adjusted size for safer mobile width */
+            font-size: 1.9vw; 
+            line-height: 1.1; 
             padding: 10px 0;
-            margin: 0 auto; /* Centers the art block */
-            width: fit-content; /* Hugs the text width */
-            align-self: center; /* Flexbox centering */
+            margin: 0 auto; 
+            width: fit-content; 
+            align-self: center; 
         }
         
         .line {
@@ -259,7 +265,7 @@
             { text: "Analyzing happiness metrics... [POSITIVE_OVERLOAD]" },
             { text: "Finalizing display output... Executing display_message.exe" },
         ];
-        // Note: I aligned the text slightly to the left in the string to help with centering logic
+        
         const finalMessage = `
 ..........................|   |   |..........................
 .........................|V| |V| |V|.........................
@@ -322,14 +328,14 @@
 
                     terminalContent.scrollTop = terminalContent.scrollHeight;
                     lineIndex++;
-                    const dramaticDelay = Math.floor(Math.random() * 400) + 200; // 200ms to 600ms
+                    const dramaticDelay = Math.floor(Math.random() * 400) + 200; 
                     setTimeout(typeLine, dramaticDelay);
                 } else {
                     showMessage();
                 }
             }
             function showMessage() {
-                const messageEl = document.createElement('div'); // Changed to DIV for better flex control
+                const messageEl = document.createElement('div'); 
                 messageEl.id = 'message';
                 messageEl.textContent = finalMessage;
                 terminalContent.appendChild(messageEl);
@@ -348,7 +354,6 @@
                     return;
                 }
                 
-                // Check if audio file source is valid or available
                 if (!keySound.currentSrc) {
                      console.warn("Audio source not found or loaded. Skipping sound.");
                      return;
@@ -356,7 +361,6 @@
 
                 keySound.currentTime = 0;
                 keySound.play().catch(e => {
-                    // This warning is expected if the audio file is missing
                     if (e.name === 'NotSupportedError' || !keySound.currentSrc) {
                          console.warn("Audio file not found. Sound will not play.");
                     } else {
